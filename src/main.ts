@@ -86,6 +86,7 @@ function createConfluenceNote(event: GoogleAppsScript.Calendar.CalendarEvent): n
     headers: confluenceAuthorizationHeaders(),
     contentType: "application/json",
     payload: JSON.stringify(params),
+    muteHttpExceptions: true,
   };
 
   const response = UrlFetchApp.fetch(`${baseUrl}/content`, options);
@@ -97,6 +98,7 @@ function logRunCriteria(
   calendar: GoogleAppsScript.Calendar.Calendar,
   date: Date,
   statuses: GoogleAppsScript.Calendar.GuestStatus[],
+  includeSolo: Boolean,
   includeRecurring: Boolean,
   includeAllDay: Boolean
 ): void {
@@ -104,8 +106,9 @@ function logRunCriteria(
   Logger.log(`\tCalendar '${calendar.getName()}'`);
   Logger.log(`\tDate '${date.toLocaleDateString()}'`);
   Logger.log(`\tStatuses '${statuses.map((status) => status.toString()).join(", ")}'`);
-  Logger.log(`\t${includeRecurring ? "No recurring events" : "Recurring events allowed"}`);
-  Logger.log(`\t${includeAllDay ? "No all day events" : "All day events allowed"}`);
+  Logger.log(`\t${includeRecurring ? "Recurring events included" : "No recurring events"}`);
+  Logger.log(`\t${includeAllDay ? "All day events included" : "No all day events"}`);
+  Logger.log(`\t${includeSolo ? "Solo events included" : "No solo events"}`);
 }
 
 function calendarEvents(): GoogleAppsScript.Calendar.CalendarEvent[] {
@@ -121,13 +124,15 @@ function calendarEvents(): GoogleAppsScript.Calendar.CalendarEvent[] {
 
   const includeRecurring = false;
   const includeAllDay = false;
+  const includeSolo = false;
 
-  logRunCriteria(calendar, today, validAttendanceStatuses, includeRecurring, includeAllDay);
+  logRunCriteria(calendar, today, validAttendanceStatuses, includeSolo, includeRecurring, includeAllDay);
 
   let events = calendar
     .getEventsForDay(today, { statusFilters: validAttendanceStatuses })
     .filter((event) => event.isRecurringEvent() === includeRecurring)
-    .filter((event) => event.isAllDayEvent() === includeAllDay);
+    .filter((event) => event.isAllDayEvent() === includeAllDay)
+    .filter((event) => (event.getGuestList(false).length === 0) === includeSolo);
 
   Logger.log(`Found ${events.length} valid events in the search criteria.`);
 
@@ -144,6 +149,7 @@ function main() {
     if (responseStatusCode !== 200) {
       Logger.log("\tFailed to create Confluence notes for event.");
       Logger.log(`\tReceived HTTP status code ${responseStatusCode} from Confluence API.`);
+      return;
     }
 
     Logger.log("\tSuccessfully created Confluence note for event.");

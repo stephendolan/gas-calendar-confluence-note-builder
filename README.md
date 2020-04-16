@@ -17,7 +17,7 @@
 
 There are a couple of flags you can flip on and off in the code to change the behavior, and those can be deployed to your project with a simple `clasp push` if you followed the "Initial Setup" instructions.
 
-   - [Include Recurring Events](/src/main.ts#L125) - Whether or not to filter out recurring events from note creation
-   - [Include All Day Events](/src/main.ts#L126) - Whether or not to filter out "all day" events from note creation
-   - [Include Solo Events](/src/main.ts#L127) - Whether or not to include events where you're the only attendee
-   - [Attendance Statuses](/src/main.ts#L119) - Which [statuses](https://developers.google.com/apps-script/reference/calendar/guest-status) you must have responded to an event with for it to be included
+- [Include Recurring Events](/src/main.ts#L125) - Whether or not to filter out recurring events from note creation
+- [Include All Day Events](/src/main.ts#L126) - Whether or not to filter out "all day" events from note creation
+- [Include Solo Events](/src/main.ts#L127) - Whether or not to include events where you're the only attendee
+- [Attendance Statuses](/src/main.ts#L119) - Which [statuses](https://developers.google.com/apps-script/reference/calendar/guest-status) you must have responded to an event with for it to be included

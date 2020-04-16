@@ -10,7 +10,7 @@
    - CONFLUENCE_TEMPLATE_ID - The ID of the template to use for meeting notes
    - CONFLUENCE_PARENT_PAGE_ID - Which page to use as the parent for all meeting notes
 1. Run `clasp push` to push the new user properties you've just defined up to the script
-1. Set up an [Apps Script schedule](https://developers.google.com/apps-script/guides/triggers/installable#time-driven_triggers) for the project you've created.
+1. Set up an [Apps Script schedule](https://developers.google.com/apps-script/guides/triggers/installable#time-driven_triggers) for the project you've created to run this **once per day**, preferrably in the morning before your meetings.
 1. Enjoy!
 
 ## Advanced Configuration

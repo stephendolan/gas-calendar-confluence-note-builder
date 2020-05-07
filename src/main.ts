@@ -149,7 +149,7 @@ function main() {
     if (responseStatusCode !== 200) {
       Logger.log("\tFailed to create Confluence notes for event.");
       Logger.log(`\tReceived HTTP status code ${responseStatusCode} from Confluence API.`);
-      return;
+      throw new Error("Failed to create Confluence notes");
     }
 
     Logger.log("\tSuccessfully created Confluence note for event.");

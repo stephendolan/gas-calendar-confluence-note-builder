@@ -67,7 +67,9 @@ function confluenceTemplate(): ConfluenceTemplate {
   return JSON.parse(response.getContentText());
 }
 
-function createConfluenceNote(event: GoogleAppsScript.Calendar.CalendarEvent): number {
+function createConfluenceNote(
+  event: GoogleAppsScript.Calendar.CalendarEvent
+): GoogleAppsScript.URL_Fetch.HTTPResponse {
   const userProperties = PropertiesService.getUserProperties();
   const baseUrl = userProperties.getProperty("CONFLUENCE_API_BASE_URL");
   const parentPage = confluenceParentPage();
@@ -89,8 +91,7 @@ function createConfluenceNote(event: GoogleAppsScript.Calendar.CalendarEvent): n
     muteHttpExceptions: true,
   };
 
-  const response = UrlFetchApp.fetch(`${baseUrl}/content`, options);
-  return response.getResponseCode();
+  return UrlFetchApp.fetch(`${baseUrl}/content`, options);
 }
 
 // Print out some helpful information regarding how the calendar events are filtered.
@@ -142,16 +143,27 @@ function calendarEvents(): GoogleAppsScript.Calendar.CalendarEvent[] {
 function main() {
   defineUserProperties();
 
+  let failureOccurred = false;
   calendarEvents().forEach((event) => {
     Logger.log(`Processing event '${event.getTitle()}'...`);
-    const responseStatusCode = createConfluenceNote(event);
+    const response = createConfluenceNote(event);
 
-    if (responseStatusCode !== 200) {
+    if (response.getResponseCode() !== 200) {
       Logger.log("\tFailed to create Confluence notes for event.");
-      Logger.log(`\tReceived HTTP status code ${responseStatusCode} from Confluence API.`);
-      throw new Error("Failed to create Confluence notes");
+      Logger.log(`\tReceived HTTP status code ${response.getResponseCode()} from Confluence API.`);
+
+      // 400 responses occur when the notes already exist, which we're okay with.
+      if (response.getResponseCode() !== 400) {
+        failureOccurred = true;
+      }
+
+      return;
     }
 
     Logger.log("\tSuccessfully created Confluence note for event.");
   });
+
+  if (failureOccurred) {
+    throw new Error("Script encountered an unexpected error");
+  }
 }
